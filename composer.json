@@ -1,0 +1,43 @@
+{
+    "name": "nocs/laravel-retriever",
+    "description": "Retrieve cached data made simple.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alan Schatteman",
+            "email": "alan@nineoclocksomewhe.re",
+            "homepage": "https://nineoclocksomewhe.re"
+        }
+    ],
+    "homepage": "https://github.com/nocs/laravel-retriever",
+    "keywords": [
+        "Laravel", "Cache", "Retriever", "Cached Data", "LaravelRetriever"
+    ],
+    "require": {
+        "illuminate/support": "~7|~8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~9.0",
+        "orchestra/testbench": "~5|~6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nocs\\Retriever\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nocs\\Retriever\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --testdox"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nocs\\Retriever\\RetrieverServiceProvider"
+            ]
+        }
+    }
+}
