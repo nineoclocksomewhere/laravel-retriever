@@ -1,6 +1,6 @@
 <?php
 
-namespace Nocs\Retriever\Facades;
+namespace Nocs\Retriever\Support\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
