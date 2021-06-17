@@ -23,7 +23,10 @@
     "autoload": {
         "psr-4": {
             "Nocs\\Retriever\\": "src/"
-        }
+        },
+        "files": [
+            "helpers/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -11,6 +11,16 @@ if (! function_exists('retriever')) {
      */
     function retriever()
     {
-        return app('retriever');
+
+        if (func_num_args()) {
+
+            return call_user_func_array([app('retriever'), 'get'], func_get_args());
+
+        } else {
+
+            return app('retriever');
+
+        }
+
     }
 }
