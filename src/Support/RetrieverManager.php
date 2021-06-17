@@ -2,6 +2,8 @@
 
 namespace Nocs\Retriever\Support;
 use Illuminate\Support\Traits\ForwardsCalls;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class RetrieverManager
 {
@@ -13,6 +15,12 @@ class RetrieverManager
      * @var [type]
      */
     protected $app;
+
+    /**
+     * [$callers description]
+     * @var array
+     */
+    protected static $callers = [];
 
     /**
      * [__construct description]
@@ -39,9 +47,26 @@ class RetrieverManager
             $ttl = $this->mediumTime();
         }
 
-        // ...
+        if (!($callable = $this->callable($key))) {
+            return null;
+        }
 
-        return null;
+        $cacheKey = $this->cacheKey($key, $parameters);
+
+        return Cache::remember($cacheKey, $ttl, function () use ($callable, $parameters) {
+            return call_user_func_array([$callable->caller, $callable->method], $parameters);
+        });
+    }
+
+    /**
+     * [cacheKey description]
+     * @param  [type] $key        [description]
+     * @param  array  $parameters [description]
+     * @return [type]             [description]
+     */
+    public function cacheKey($key, $parameters = []): string
+    {
+        return 'retriever.' . $key . (!empty($parameters) ? '.' . md5(serialize($parameters)) : '');
     }
 
     /**
@@ -56,6 +81,57 @@ class RetrieverManager
             'medium' => env('RETRIEVER_TIME_MEDIUM',  3600), // 1 hour
             'long'   => env('RETRIEVER_TIME_LONG',   86400), // 24 hours
         ]);
+    }
+
+    /**
+     * [caller description]
+     * @param  [type] $name [description]
+     * @return [type]       [description]
+     */
+    public static function caller($name)
+    {
+
+        if (preg_match('/^([^\.]+)\..+$/', $name, $m)) {
+            $name = $m[1];
+        }
+
+        if (array_key_exists($name, static::$callers)) {
+            return static::$callers[$name];
+        }
+
+        $class = 'App\\Cache\\' . Str::studly($name);
+        if (!class_exists($class)) {
+            return (static::$callers[$name] = null);
+        }
+
+        return (static::$callers[$name] = new $class);
+    }
+
+    /**
+     * [callable description]
+     * @param  [type] $key [description]
+     * @return [type]      [description]
+     */
+    public static function callable($key)
+    {
+
+        if (!preg_match('/^([^\.]+)\.(.+)$/', trim($key), $m)) {
+            return null;
+        }
+
+        if (!($caller = static::caller($m[1]))) {
+            return null;
+        }
+
+        $method = Str::camel($m[2]);
+        if (!method_exists($caller, $method)) {
+            return null;
+        }
+
+        return (object) [
+            'caller' => $caller,
+            'method' => $method,
+        ];
     }
 
     /**
