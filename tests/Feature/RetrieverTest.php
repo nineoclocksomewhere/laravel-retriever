@@ -2,6 +2,7 @@
 
 namespace Nocs\Retriever\Tests\Feature;
 
+use BadMethodCallException;
 use Nocs\Retriever\Tests\TestCase;
 
 class RetrieverTest extends TestCase
@@ -16,6 +17,14 @@ class RetrieverTest extends TestCase
     {
 
         $this->assertEquals('red', retriever('retriever::colors'));
+
+    }
+
+    public function testExceptions()
+    {
+
+        $this->expectException(BadMethodCallException::class);
+        retriever()->thisMethodReallyDoesntExistWhatsoever();
 
     }
 
