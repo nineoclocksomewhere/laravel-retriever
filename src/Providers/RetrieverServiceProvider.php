@@ -4,6 +4,7 @@ namespace Nocs\Retriever\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Nocs\Retriever\Support\RetrieverManager;
+use Nocs\Retriever\Support\Facades\Retriever;
 
 /**
  * BackpackServiceProvider class
@@ -32,13 +33,8 @@ class RetrieverServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        // ...
-
-        if ($this->app->runningInConsole()) {
-
-            // ...
-
-        }
+        Retriever::loadRetrieversFrom(app_path('Retrievers'), 'app');
+        Retriever::loadRetrieversFrom(app_path('Cache'), 'app');
 
     }
 

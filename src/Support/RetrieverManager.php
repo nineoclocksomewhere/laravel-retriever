@@ -1,9 +1,11 @@
 <?php
 
 namespace Nocs\Retriever\Support;
-use Illuminate\Support\Traits\ForwardsCalls;
-use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Illuminate\Support\Traits\ForwardsCalls;
 
 class RetrieverManager
 {
@@ -20,7 +22,13 @@ class RetrieverManager
      * [$callers description]
      * @var array
      */
-    protected static $callers = [];
+    protected $callers = [];
+
+    /**
+     * [$paths description]
+     * @var array
+     */
+    protected $paths = [];
 
     /**
      * [__construct description]
@@ -28,9 +36,46 @@ class RetrieverManager
      */
     public function __construct($app = null)
     {
-
         $this->app = $app;
+    }
 
+    /**
+     * [registerRetrievers description]
+     * @param  [type] $namespace [description]
+     * @return [type]            [description]
+     */
+    public function loadRetrieversFrom($path, $namespace = null)
+    {
+
+        $namespace = $namespace ?? 'app.cache';
+
+        if (is_dir($path)) {
+
+            $path = realpath($path);
+
+            if (!isset($this->paths[$namespace])) {
+
+                $this->paths[$namespace] = [];
+
+                // keep app.cache first and app.retrievers second
+                uksort($this->paths, function($a, $b) {
+                    //fl($a.'-'.$b);
+                    if ($b == 'app.retrievers') { // keep app.retrievers first
+                        return 1;
+                    } elseif ($b == 'app.cache' && $a != 'app.retrievers') { // keep app.cache second
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+            }
+
+            if (!in_array($path, $this->paths[$namespace])) {
+                $this->paths[$namespace][] = $path;
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -43,8 +88,8 @@ class RetrieverManager
     public function get($key, $parameters = [], $ttl = null)
     {
 
-        if (is_null($ttl)) {
-            $ttl = $this->mediumTime();
+        if (empty($ttl)) {
+            $ttl = null;
         }
 
         if (!($callable = $this->callable($key))) {
@@ -84,27 +129,100 @@ class RetrieverManager
     }
 
     /**
+     * [splitName description]
+     * @param  [type] $name [description]
+     * @return [type]       [description]
+     */
+    public function splitName($name)
+    {
+
+        $caller = $name;
+
+        $namespace = 'app';
+        if (preg_match('/^([^\:]+)\:\:(.+)$/', $caller, $m)) {
+            $namespace = $m[1];
+            $caller = $m[2];
+        }
+
+        $method = 'get';
+        if (preg_match('/^([^\.]+)\.(.+)$/', $caller, $m)) {
+            $caller = $m[1];
+            $method = $m[2];
+        }
+
+        $key = ($namespace ? $namespace.'.' : '') . $caller;
+
+        return [
+            'key' => $key,
+            'namespace' => $namespace,
+            'caller' => $caller,
+            'method' => Str::camel($method),
+        ];
+    }
+
+    /**
      * [caller description]
      * @param  [type] $name [description]
      * @return [type]       [description]
      */
-    public static function caller($name)
+    public function caller($name)
     {
 
-        if (preg_match('/^([^\.]+)\..+$/', $name, $m)) {
-            $name = $m[1];
+        $split = $this->splitName($name);
+        if (array_key_exists($split['key'], $this->callers)) {
+            return $this->callers[$split['key']];
         }
 
-        if (array_key_exists($name, static::$callers)) {
-            return static::$callers[$name];
+        foreach ($this->paths as $namespace => $paths) {
+
+            if (!empty($split['namespace']) && ($split['namespace'] != $namespace)) {
+                continue;
+            }
+
+            foreach ($paths as $path) {
+                foreach (File::files($path) as $file) {
+                    if ($class = $this->getClassFromFile($file)) {
+                        return ($this->callers[$split['key']] = new $class);
+                    }
+                }
+            }
+
+            if (array_key_exists($split['key'], $this->callers)) {
+                return $this->callers[$split['key']];
+            }
         }
 
-        $class = 'App\\Cache\\' . Str::studly($name);
-        if (!class_exists($class)) {
-            return (static::$callers[$name] = null);
+        return ($this->callers[$split['key']] = null);
+    }
+
+    /**
+     * [getClassFromFile description]
+     * @param  [type] $file [description]
+     * @return [type]       [description]
+     */
+    public function getClassFromFile($file)
+    {
+
+        $namespace = null;
+        $class = null;
+
+        if ($fp = fopen($file->getPath().'/'.$file->getFilename(), 'r')) {
+            while ($line = fgets($fp, 4096)) {
+                if (preg_match('/^\s*namespace\s+([A-Za-z_0-9\\\]+)/s', $line, $m)) {
+                    $namespace = $m[1];
+                } elseif (preg_match('/^\s*([a-z]+\s+)*class\s+([A-Za-z_0-9]+)/s', $line, $m)) {
+                    $class = $m[2];
+                }
+                if (!empty($class)) {
+                    break;
+                }
+            }
+            fclose($fp);
         }
 
-        return (static::$callers[$name] = new $class);
+        $class = !empty($class) ? (!empty($namespace) ? $namespace.'\\' : '') . $class : null;
+
+        return class_exists($class) ? $class : null;
     }
 
     /**
@@ -112,25 +230,21 @@ class RetrieverManager
      * @param  [type] $key [description]
      * @return [type]      [description]
      */
-    public static function callable($key)
+    public function callable($name)
     {
 
-        if (!preg_match('/^([^\.]+)\.(.+)$/', trim($key), $m)) {
+        if (!($caller = $this->caller($name))) {
             return null;
         }
 
-        if (!($caller = static::caller($m[1]))) {
-            return null;
-        }
-
-        $method = Str::camel($m[2]);
-        if (!method_exists($caller, $method)) {
+        $split = $this->splitName($name);
+        if (!method_exists($caller, $split['method'])) {
             return null;
         }
 
         return (object) [
             'caller' => $caller,
-            'method' => $method,
+            'method' => $split['method'],
         ];
     }
 
