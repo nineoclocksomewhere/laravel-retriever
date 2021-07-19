@@ -15,6 +15,8 @@ Place your cache files under app/Retrievers (primary) or app/Cache (secondary).
 
 Use the __App\Retrievers__ or __App\Cache__ namespace for your classes.
 
+Use, as usual, _studlied_ strings for your classnames. When retrieving use a _snaked_ version in your key.
+
 Define public non-static methods which return the cached values.
 
 ### Basic usage
