@@ -23,7 +23,7 @@ Define public non-static methods which return the cached values.
 
 Example:
 _app/Cache/Colors.php_
-```
+```php
 <?php
 
 namespace Nocs\Retriever\Tests\Cache;
@@ -38,7 +38,7 @@ class Colors {
 }
 ```
 Retrieve the value with:
-```
+```php
 <?php
 
 $value = retriever()->get('colors.red');
@@ -48,7 +48,7 @@ $value = retriever()->get('colors.red');
 
 When using only one method, you can use the _get_ method.
 _app/Cache/Colors.php_
-```
+```php
 <?php
 
 namespace Nocs\Retriever\Tests\Cache;
@@ -63,7 +63,7 @@ class Colors {
 }
 ```
 And retrieve the value with:
-```
+```php
 <?php
 
 $value = retriever()->get('colors');
@@ -75,8 +75,32 @@ When creating vendors you can use namespaces.
 
 Give your cache files the correct namespace, for example _MyVendor\Cache_.
 
-Retrieve the value with the namespace prefixed (snaked) to the key:
+Place your cache class files in location _src/Retrievers_ or _src/Cache_.
+
+Add the location in your _ServiceProvider_ class in the _boot_ section.
+```php
+<?php
+
+namespace Vendor\Package\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Nocs\Retriever\Support\Facades\Retriever;
+
+class PackageServiceProvider extends ServiceProvider
+{
+
+    public function boot(Router $router)
+    {
+
+        Retriever::loadRetrieversFrom(__dir__.'/../Cache', 'package');
+
+    }
+}
+
 ```
+
+Retrieve the value with the namespace prefixed (snaked) to the key:
+```php
 <?php
 
 $value = retriever()->get('my_vendor::colors');
@@ -89,14 +113,14 @@ A second argument can be provided to the _get_ call to define as a default retur
 ### Short
 
 Instead of using
-```
+```php
 <?php
 
 $value = retriever()->get('key');
 $value = retriever()->get('key', 'default');
 ```
 you can use 
-```
+```php
 <?php
 
 $value = retriever('key', 'default');
