@@ -106,9 +106,9 @@ Retrieve the value with the namespace prefixed (snaked) to the key:
 $value = retriever()->get('my_vendor::colors');
 ```
 
-### Defaults
+### Arguments
 
-A second argument can be provided to the _get_ call to define as a default return value when no cache value was found.
+A second argument to the _get_ call can be provided as an array of arguments that will be passed to the cache closure.
 
 ### Short
 
