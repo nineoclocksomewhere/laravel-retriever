@@ -47,7 +47,7 @@ class RetrieverManager
     public function loadRetrieversFrom($path, $namespace = null)
     {
 
-        $namespace = $namespace ?? 'app.cache';
+        $namespace = Str::snake($namespace) ?? 'app.cache';
 
         if (is_dir($path)) {
 
@@ -182,7 +182,9 @@ class RetrieverManager
             foreach ($paths as $path) {
                 foreach (File::files($path) as $file) {
                     if ($class = $this->getClassFromFile($file)) {
-                        return ($this->callers[$split['key']] = new $class);
+                        $cache = new $class;
+                        $callerKey = $namespace.'.'.Str::snake((new \ReflectionClass($cache))->getShortName());
+                        $this->callers[$callerKey] = $cache;
                     }
                 }
             }

@@ -20,6 +20,13 @@ class RetrieverTest extends TestCase
 
     }
 
+    public function testCamels()
+    {
+
+        $this->assertContains('dog', retriever('retriever::animals_of_the_world.mammals'));
+
+    }
+
     public function testExceptions()
     {
 
