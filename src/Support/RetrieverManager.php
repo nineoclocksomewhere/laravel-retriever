@@ -114,6 +114,14 @@ class RetrieverManager
         return 'retriever.' . $key . (!empty($parameters) ? '.' . md5(serialize($parameters)) : '');
     }
 
+    public function forget($key, $parameters = []): void
+    {
+
+        $cacheKey = $this->cacheKey($key, $parameters);
+
+        Cache::forget($cacheKey);
+    }
+
     /**
      * Get the times in seconds
      *
