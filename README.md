@@ -1,4 +1,7 @@
 # laravel-retriever
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Build Status][ico-build]][link-build]
+[![Total Downloads][ico-downloads]][link-downloads]
 
 Retrieve cached data made simple
 
@@ -132,3 +135,22 @@ To test, run
 ```sh
 composer test
 ```
+
+## Security
+
+If you discover any security related issues, please email [the author](composer.json) instead of using the issue tracker.
+
+## Credits
+- [nineoclocksomewhere](https://github.com/nineoclocksomewhere)
+- [All Contributors][link-contributors]
+
+## License
+
+MIT. Please see the [license file](license.md) for more information.
+
+[link-contributors]: ../../contributors
+[ico-version]: https://img.shields.io/packagist/v/nineoclocksomewhere/laravel-retriever.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/nineoclocksomewhere/laravel-retriever.svg?style=flat-square
+
+[link-packagist]: https://packagist.org/packages/nineoclocksomewhere/laravel-retriever
+[link-downloads]: https://packagist.org/packages/nineoclocksomewhere/laravel-retriever
