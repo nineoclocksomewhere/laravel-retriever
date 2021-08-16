@@ -1,6 +1,4 @@
 # laravel-retriever
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Total Downloads][ico-downloads]][link-downloads]
 
 Retrieve cached data made simple
 
@@ -148,8 +146,3 @@ If you discover any security related issues, please email [the author](composer.
 MIT. Please see the [license file](license.md) for more information.
 
 [link-contributors]: ../../contributors
-[ico-version]: https://img.shields.io/packagist/v/nocs/laravel-retriever.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/nocs/laravel-retriever.svg?style=flat-square
-
-[link-packagist]: https://packagist.org/packages/nocs/laravel-retriever
-[link-downloads]: https://packagist.org/packages/nocs/laravel-retriever
