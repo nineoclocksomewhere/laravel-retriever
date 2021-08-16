@@ -140,7 +140,7 @@ composer test
 If you discover any security related issues, please email [the author](composer.json) instead of using the issue tracker.
 
 ## Credits
-- [nineoclocksomewhere](https://github.com/nineoclocksomewhere)
+- [Nine O'Clock Somewhere](https://github.com/nineoclocksomewhere)
 - [All Contributors][link-contributors]
 
 ## License
