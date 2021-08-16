@@ -1,6 +1,5 @@
 # laravel-retriever
 [![Latest Version on Packagist][ico-version]][link-packagist]
-[![Build Status][ico-build]][link-build]
 [![Total Downloads][ico-downloads]][link-downloads]
 
 Retrieve cached data made simple
