@@ -111,15 +111,34 @@ class RetrieverManager
      */
     public function cacheKey($key, $parameters = []): string
     {
-        return 'retriever.' . $key . (!empty($parameters) ? '.' . md5(serialize($parameters)) : '');
+        if (is_string($parameters)) {
+            $parameters = [$parameters];
+        }
+        
+        if (in_array('*', $parameters, true)) {
+            $appendWildcard = true;
+            $parameters = array_slice($parameters, 0, array_search('*', $parameters, true));
+        }
+
+        $keys = '';
+        foreach ($parameters as $parameter) {
+            $keys .= '.' . md5(serialize($parameter));
+        }
+        
+        return 'retriever.' . $key . $keys . (isset($appendWildcard) &&  $appendWildcard ? '.*' : '');
     }
 
     public function forget($key, $parameters = []): void
     {
-
+        
         $cacheKey = $this->cacheKey($key, $parameters);
-
-        Cache::forget($cacheKey);
+        
+        if (substr($cacheKey, -1) == '*') {
+            Cache::forgetByWildcard($cacheKey);
+        } else {
+            Cache::forget($cacheKey);
+        }
+        
     }
 
     /**
