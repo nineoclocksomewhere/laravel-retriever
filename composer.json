@@ -3,6 +3,7 @@
   "description": "Retrieve cached data made simple.",
   "license": "MIT",
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "authors": [
     {
       "name": "Alan Schatteman",
@@ -19,8 +20,8 @@
     "LaravelRetriever"
   ],
   "require": {
-    "php": "^7.3 || ^8.0",
-    "illuminate/support": "~7|~8|~9|~10|~11|~12"
+    "php": "^7.2 || ^8",
+    "illuminate/support": "^7 || ^8 || ^9 || ^10 || ^11 || ^12"
   },
   "require-dev": {
     "phpunit/phpunit": "~9.0",
