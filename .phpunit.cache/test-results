@@ -1,0 +1,1 @@
+{"version":2,"defects":[],"times":{"Nocs\\Retriever\\Tests\\Unit\\RetrieveTest::testRetrieve":0.019,"Nocs\\Retriever\\Tests\\Feature\\RetrieverTest::testRetrieve":0.001,"Nocs\\Retriever\\Tests\\Feature\\RetrieverTest::testCamels":0.001,"Nocs\\Retriever\\Tests\\Feature\\RetrieverTest::testExceptions":0.001}}
