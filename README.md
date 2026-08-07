@@ -153,3 +153,6 @@ MIT. Please see the [license file](license.md) for more information.
 
 [link-packagist]: https://packagist.org/packages/nineoclocksomewhere/laravel-retriever
 [link-downloads]: https://packagist.org/packages/nineoclocksomewhere/laravel-retriever
+
+## Repository documentation
+See [the repository dossier](docs/README.md).
