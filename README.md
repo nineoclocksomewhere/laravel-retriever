@@ -1,158 +1,64 @@
-# laravel-retriever
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Total Downloads][ico-downloads]][link-downloads]
+# Laravel Retriever
 
-Retrieve cached data made simple
+[![Latest Version on Packagist](https://badgen.net/packagist/v/nocs/laravel-retriever)](https://packagist.org/packages/nineoclocksomewhere/laravel-retriever)
+[![Total Downloads](https://badgen.net/packagist/dt/nocs/laravel-retriever)](https://packagist.org/packages/nineoclocksomewhere/laravel-retriever)
 
-## Installation
+Laravel Retriever resolves small PHP classes and methods by a string key, then memoizes their return values through Laravel's cache manager. It is useful for reusable, cacheable data providers such as lookup lists, external-data snapshots, and application-level reference data.
 
-Install with composer
+## Install
+
 ```sh
 composer require nocs/laravel-retriever
 ```
 
-## Usage
+Laravel package discovery registers `Nocs\\Retriever\\Providers\\RetrieverServiceProvider` automatically. The provider binds the `retriever` manager and scans `app/Retrievers` and `app/Cache` during application boot.
 
-Place your cache files under app/Retrievers (primary) or app/Cache (secondary).
+## Quick example
 
-Use the __App\Retrievers__ or __App\Cache__ namespace for your classes.
+Create `app/Cache/Colors.php`:
 
-Use, as usual, _studlied_ strings for your classnames. When retrieving use a _snaked_ version in your key.
-
-Define public non-static methods which return the cached values.
-
-### Basic usage
-
-Example:
-_app/Cache/Colors.php_
 ```php
 <?php
 
-namespace Nocs\Retriever\Tests\Cache;
+namespace App\Cache;
 
-class Colors {
-
-    public function red()
-    {
-        return 'red';
-    }
-
-}
-```
-Retrieve the value with:
-```php
-<?php
-
-$value = retriever()->get('colors.red');
-```
-
-### Using one method
-
-When using only one method, you can use the _get_ method.
-_app/Cache/Colors.php_
-```php
-<?php
-
-namespace Nocs\Retriever\Tests\Cache;
-
-class Colors {
-
-    public function get()
-    {
-        return 'red';
-    }
-
-}
-```
-And retrieve the value with:
-```php
-<?php
-
-$value = retriever()->get('colors');
-```
-
-### Using namespaces
-
-When creating vendors you can use namespaces.
-
-Give your cache files the correct namespace, for example _MyVendor\Cache_.
-
-Place your cache class files in location _src/Retrievers_ or _src/Cache_.
-
-Add the location in your _ServiceProvider_ class in the _boot_ section.
-```php
-<?php
-
-namespace Vendor\Package\Providers;
-
-use Illuminate\Support\ServiceProvider;
-use Nocs\Retriever\Support\Facades\Retriever;
-
-class PackageServiceProvider extends ServiceProvider
+class Colors
 {
-
-    public function boot(Router $router)
+    public function red(): string
     {
-
-        Retriever::loadRetrieversFrom(__dir__.'/../Cache', 'package');
-
+        return 'red';
     }
 }
-
 ```
 
-Retrieve the value with the namespace prefixed (snaked) to the key:
+Retrieve it from application code:
+
 ```php
-<?php
-
-$value = retriever()->get('my_vendor::colors');
+$value = retriever()->get('colors.red');
+// or: $value = retriever('colors.red');
 ```
 
-### Arguments
+The class name and method segment are normalized with Laravel's `Str::snake`/`Str::camel` conventions. A class with only a `get()` method can be addressed as `retriever('colors')`.
 
-A second argument to the _get_ call can be provided as an array of arguments that will be passed to the cache closure.
+## Documentation
 
-### Short
+- [Documentation hub](docs/README.md)
+- [Getting started](docs/getting-started.md)
+- [Usage](docs/usage.md)
+- [Reference](docs/reference.md)
+- [Architecture](docs/architecture.md)
+- [Compatibility](docs/compatibility.md)
+- [Testing and verification](docs/testing.md)
 
-Instead of using
-```php
-<?php
+## Development
 
-$value = retriever()->get('key');
-$value = retriever()->get('key', 'default');
-```
-you can use 
-```php
-<?php
-
-$value = retriever('key', 'default');
-```
-
-## Testing
-
-To test, run
 ```sh
+composer validate --strict
 composer test
 ```
 
-## Security
+See [Testing and verification](docs/testing.md) for the CI matrix and source-level checks.
 
-If you discover any security related issues, please email [the author](composer.json) instead of using the issue tracker.
+## Support and license
 
-## Credits
-- [Nine O'Clock Somewhere](https://github.com/nineoclocksomewhere)
-- [All Contributors][link-contributors]
-
-## License
-
-MIT. Please see the [license file](license.md) for more information.
-
-[link-contributors]: ../../contributors
-[ico-version]:https://badgen.net/packagist/v/nocs/laravel-retriever
-[ico-downloads]: https://badgen.net/packagist/dt/nocs/laravel-retriever
-
-[link-packagist]: https://packagist.org/packages/nineoclocksomewhere/laravel-retriever
-[link-downloads]: https://packagist.org/packages/nineoclocksomewhere/laravel-retriever
-
-## Repository documentation
-See [the repository dossier](docs/README.md).
+Report security issues privately to the maintainer rather than through the public issue tracker. This package is released under the [MIT license](license.md).
