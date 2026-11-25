@@ -47,7 +47,7 @@ class RetrieverManager
     public function loadRetrieversFrom($path, $namespace = null)
     {
 
-        $namespace = Str::snake($namespace) ?? 'app.cache';
+        $namespace = $namespace === null ? 'app.cache' : Str::snake($namespace);
 
         if (is_dir($path)) {
 

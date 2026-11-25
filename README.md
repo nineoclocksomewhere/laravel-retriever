@@ -130,10 +130,8 @@ $value = retriever('key', 'default');
 
 ## Testing
 
-To test, run
-```sh
-composer test
-```
+See [testing and validation](docs/testing.md). Run `composer test` for the
+package suite.
 
 ## Security
 

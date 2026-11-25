@@ -2,75 +2,61 @@ name: PHP Composer
 
 on:
   push:
-    branches: [ master, 1.x ]
+    branches: ['1.x']
   pull_request:
-    branches: [ master, 1.x ]
+    branches: ['1.x']
 
 jobs:
-  legacy:
+  build:
+    name: PHP ${{ matrix.php-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["8.2", "8.3"]
+        include:
+          - php-version: '7.4'
+            testbench: '^6.0'
+          - php-version: '8.0'
+            testbench: '^7.0'
+          - php-version: '8.1'
+            testbench: '^8.0'
+          - php-version: '8.2'
+            testbench: '^9.0'
+          - php-version: '8.3'
+            testbench: '^10.0'
+          - php-version: '8.3'
+            testbench: '^11.0'
+          - php-version: '8.4'
+            testbench: '^11.0'
+          - php-version: '8.5'
+            testbench: '^11.0'
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup PHP
+        if: ${{ env.ACT_PREINSTALLED_PHP != 'true' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          tools: composer:v2
           coverage: none
 
-      - name: Validate composer.json and composer.lock
+      - name: Lint PHP syntax
+        run: find . -path './vendor' -prune -o -path './.git' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate Composer files
         run: composer validate --strict
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
+      - name: Select Laravel Testbench version
+        run: composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-update --no-interaction
 
       - name: Install dependencies
         env:
           COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-        run: composer update --with-all-dependencies --prefer-dist --no-progress
-
-      - name: Run test suite
-        run: composer run-script test
-
-  laravel13:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.3"
-          coverage: none
-
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-8.3-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-8.3-
-
-      - name: Install dependencies
-        env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-        run: composer update --with-all-dependencies --prefer-dist --no-progress
+        run: >-
+          composer update --with-all-dependencies --no-interaction --no-progress --prefer-dist
+          ${{ (matrix.testbench == '^6.0' || matrix.testbench == '^7.0' || matrix.testbench == '^8.0' || matrix.testbench == '^9.0') && '--no-security-blocking' || '' }}
 
       - name: Run test suite
         run: composer run-script test

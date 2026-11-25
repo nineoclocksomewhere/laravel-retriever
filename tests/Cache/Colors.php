@@ -24,4 +24,9 @@ class Colors {
         return 'blue';
     }
 
+    public function shade($color)
+    {
+        return $color;
+    }
+
 }
